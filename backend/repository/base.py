@@ -44,13 +44,13 @@ class BaseRepository(AbstractRepository):
     model_pydantic_schema = None
     
     @classmethod
-    async def get_all(cls, **filter_by) -> List[model_pydantic_schema]:
+    async def get_all(cls, limit, skip, **filter_by) -> model_pydantic_schema:
         async with async_session_maker() as session:
-            query = select(cls.model.__table__.columns).filter_by(**filter_by)
+            query = select(cls.model.__table__.columns)
             result = await session.execute(query)
             mapping_result = result.mappings().all()
             return [cls.model_pydantic_schema(**elem) for elem in mapping_result]
-            
+                                            
     @classmethod
     async def get_one_or_none(cls, **filter_by) -> model_pydantic_schema:
         async with async_session_maker() as session:
@@ -64,7 +64,7 @@ class BaseRepository(AbstractRepository):
         async with async_session_maker() as session:
             query = select(cls.model.__table__.columns).filter_by(id=id_)
             result = await session.execute(query)
-            mapping_result = result.mappings().one()
+            mapping_result = result.mappings().first()
         return cls.model_pydantic_schema(**mapping_result) if mapping_result else None
     
     @classmethod
@@ -72,8 +72,9 @@ class BaseRepository(AbstractRepository):
         async with async_session_maker() as session:
             query = select(cls.model.__table__.columns).filter_by(email=email_)
             result = await session.execute(query)
-            mapping_result = result.mappings().one()
-        return cls.model_pydantic_schema(**mapping_result) if mapping_result else None
+            mapping_result = result.mappings().first()
+            return cls.model_pydantic_schema(**mapping_result) if mapping_result else None
+        
     
     @classmethod
     async def create(cls, **values) -> None:
