@@ -4,6 +4,7 @@ import datetime
 
 class SUser(BaseModel):
     id: int
+    role_id: int
     email: EmailStr
     name: str
     hashed_password: str
