@@ -6,15 +6,16 @@ import datetime
 from repository.user import UserRepository
 from schemas.user import SUser
 
+
 router = APIRouter()
 
 @router.get("/read")
 async def read_blogs(
-    limit: int = 100, 
+    limit: int = 100,
     skip: int = 0,
-    blogs: BlogRepository = Depends(get_blog_repository)):
+    blog: BlogRepository = Depends(get_blog_repository)):
     
-    await blogs.get_all(limit = limit, skip = skip)
+    return await blog.get_all(limit=limit, skip=skip)
 
 @router.post("/create", status_code=status.HTTP_201_CREATED)
 async def create_blog(
