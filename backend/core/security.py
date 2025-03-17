@@ -6,14 +6,13 @@ from fastapi import HTTPException, status
 from repository.user import UserRepository
 from pydantic import EmailStr
 
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
-def verify_password(password:str, hash:str) -> bool:
-    return pwd_context.verify_password(password, hash)
+def verify_password(password: str, hash: str) -> bool:
+    return pwd_context.verify(password, hash)
 
 def create_acces_token(data: dict) -> str:
     to_encode = data.copy()
@@ -38,8 +37,8 @@ def decode_acces_token(token: str):
 async def authenticate_user(email: EmailStr, password:str):
     user = await UserRepository.get_by_email(email_=email)
     
-    if not user and not verify_password(password, hash_password(password=password)):
-        return False
+    if not user or not verify_password(password, user.hashed_password):
+        return None
     
     return user
 
