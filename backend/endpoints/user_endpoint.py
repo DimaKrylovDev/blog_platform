@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Security
 from typing import List
 from repository.user import UserRepository
-from .depends import get_user_repository, get_current_user
+from .depends import get_user_repository
 from schemas.user import SUserRegistration, SUserUpdate
 from core.security import check_username_and_email, hash_password
 from sqlalchemy.exc import IntegrityError
@@ -12,12 +12,15 @@ from schemas.user import SUser
 
 router = APIRouter()
 
-@router.get("/read", status_code=status.HTTP_204_NO_CONTENT)
+@router.get("/read")
 async def read_users(
+    limit: int = 100,
+    skip: int = 0,
     user: UserRepository = Depends(get_user_repository)):
-    return await user.get_all()
-
-@router.post("/create", status_code=status.HTTP_201_CREATED)
+    result = await user.get_all(limit=limit, skip=skip)
+    return result 
+    
+@router.post("/registration")
 async def create_user(
     user: SUserRegistration,
     users: SUser = Depends(get_user_repository)):
@@ -32,10 +35,9 @@ async def create_user(
         created_at = datetime.datetime.now(),
         updated_at = datetime.datetime.now(),
     )
-    
-    return {'id': new_user}
+    return new_user
 
-@router.put("/update", status_code=status.HTTP_204_NO_CONTENT)
+@router.put("/update")
 async def update_user(
     user:SUserUpdate,
     user_id: int,
@@ -72,3 +74,4 @@ async def delete_user(
     await users.delete(
         id_=user_id
     )
+    
