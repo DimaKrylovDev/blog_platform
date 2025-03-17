@@ -4,8 +4,9 @@ import datetime
 class SBlog(BaseModel):
     id: int
     tittle: str
+    information: str
     created_at: datetime.datetime
-    updated_at: datetime.datetime
+
 
 class SBlogCreate(BaseModel):
     tittle: str
