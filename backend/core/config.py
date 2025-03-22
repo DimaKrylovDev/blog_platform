@@ -9,11 +9,16 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
 
+    # Redis settings
+    REDIS_PORT: int
+    REDIS_HOST: str
+
     # FastApi settings
     FASTAPI_PORT: int
 
     # JWT settings
     ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_DAYS: int
     ALGORITHM: str
     EE_SECRET_KEY: str
 
