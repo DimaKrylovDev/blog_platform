@@ -7,7 +7,6 @@ class SBlog(BaseModel):
     information: str
     created_at: datetime.datetime
 
-
 class SBlogCreate(BaseModel):
     tittle: str
     information: str
