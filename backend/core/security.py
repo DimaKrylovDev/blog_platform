@@ -20,6 +20,12 @@ def create_acces_token(data: dict) -> str:
     jwt_encoded = jwt.encode(to_encode, settings.EE_SECRET_KEY, algorithm=settings.ALGORITHM)
     return jwt_encoded
 
+def create_refresh_token(data: dict) -> str:
+    to_encode = data.copy()
+    to_encode.update({'exp': datetime.now() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS), "token_type": 'refresh'})
+    jwt_encoded = jwt.encode(to_encode, settings.EE_SECRET_KEY, algorithm=settings.ALGORITHM)
+    return jwt_encoded
+    
 def decode_acces_token(token: str):
     try: 
         payload = jwt.decode(token, settings.EE_SECRET_KEY, algorithms=[settings.ALGORITHM])
