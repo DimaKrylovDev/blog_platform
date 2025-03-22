@@ -7,9 +7,17 @@ services:
       - ./data:/var/lib/postgresql/data
     env_file:
       - ./.env
-  #
+  
   #application:
   #  image: python:latest
   #  ports:
   #    - 80:80
   #  env_file: "./.env"
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - 6379:6379
+    
