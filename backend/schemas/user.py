@@ -1,7 +1,6 @@
 from pydantic import BaseModel, EmailStr
 import datetime
 
-
 class SUser(BaseModel):
     id: int
     role_id: int
