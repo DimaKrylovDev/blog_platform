@@ -1,5 +1,5 @@
 from passlib.context import CryptContext
-from jose import jwt
+from jose import jwt, exceptions
 from datetime import datetime, timedelta
 from .config import settings
 from fastapi import HTTPException, status
@@ -27,21 +27,20 @@ def create_refresh_token(data: dict) -> str:
     return jwt_encoded
     
 def decode_acces_token(token: str):
-    try: 
-        payload = jwt.decode(token, settings.EE_SECRET_KEY, algorithms=[settings.ALGORITHM])
-    except jwt.exceptions.InvalidTokenError:
+    payload = jwt.decode(token, settings.EE_SECRET_KEY, algorithms=[settings.ALGORITHM])
+    if not payload:
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="token expired or has invalid signature/format")
     
     return payload
-    
+
 #def password_match(pass2, **values):
 #    if "password_1" in values and pass2 != values["password_1"]:
 #         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Password dont match")
 #    
 #    return pass2
 
-async def authenticate_user(email: EmailStr, password:str):
-    user = await UserRepository.get_by_email(email_=email)
+async def authenticate_user(username: str, password:str):
+    user = await UserRepository.get_one_or_none(name=username)
     
     if not user or not verify_password(password, user.hashed_password):
         return None
@@ -50,8 +49,7 @@ async def authenticate_user(email: EmailStr, password:str):
 
 def get_user_email_and_role_from_token(token: str) -> tuple[int, str]:
     return(
-        jwt.decode(token, settings.EE_SECRET_KEY, settings.ALGORITHM).get("sub"),
-        jwt.decode(token, settings.EE_SECRET_KEY, settings.ALGORITHM).get("role")
+        jwt.decode(token, settings.EE_SECRET_KEY, settings.ALGORITHM).get("sub")
     )
 
 async def check_username_and_email(name: str, email:EmailStr) -> None:
