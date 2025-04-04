@@ -2,6 +2,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 import datetime
 from db.base import Base
+from typing import List
 
 class Blog(Base):
     __tablename__ = "blogs"
@@ -11,6 +12,7 @@ class Blog(Base):
     tittle: Mapped[str]
     information: Mapped[str]
     created_at: Mapped[datetime.datetime] 
-    updated_at: Mapped[datetime.datetime] 
-    user: Mapped["User"] = relationship(back_populates="blogs")
     
+    user: Mapped["User"] = relationship(back_populates="blogs")
+    comments: Mapped[List["Comments"]] = relationship(back_populates="blog", uselist=True)
+    likes: Mapped[List["Likes"]] = relationship(uselist=True)
