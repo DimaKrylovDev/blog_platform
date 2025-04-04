@@ -44,7 +44,7 @@ class BaseRepository(AbstractRepository):
     model_pydantic_schema = None
     
     @classmethod
-    async def get_all(cls, limit, skip, **filter_by) -> model_pydantic_schema:
+    async def get_all(cls, limit, skip) -> model_pydantic_schema:
         async with async_session_maker() as session:
             query = select(cls.model.__table__.columns)
             result = await session.execute(query)
@@ -56,6 +56,7 @@ class BaseRepository(AbstractRepository):
         async with async_session_maker() as session:
             query = select(cls.model.__table__.columns).filter_by(**filter_by) 
             result = await session.execute(query)
+            print(result.mappings())
             mapping_result = result.mappings().one_or_none()
             return cls.model_pydantic_schema(**mapping_result) if mapping_result else None    
                             
@@ -75,7 +76,6 @@ class BaseRepository(AbstractRepository):
             mapping_result = result.mappings().first()
             return cls.model_pydantic_schema(**mapping_result) if mapping_result else None
         
-    
     @classmethod
     async def create(cls, **values) -> None:
         async with async_session_maker() as session:
