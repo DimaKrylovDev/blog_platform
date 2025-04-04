@@ -1,3 +1,5 @@
 from .user import User
 from .blog import Blog
-from .role import Role
+from .roles import Role
+from .likes import Likes
+from .comments import Comments
