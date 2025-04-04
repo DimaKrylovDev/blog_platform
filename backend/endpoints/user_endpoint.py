@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Security
 from typing import List
 from repository.user import UserRepository
-from .depends import get_user_repository
+from .depends import get_user_repository, get_current_user
 from schemas.user import SUserRegistration, SUserUpdate
 from core.security import check_username_and_email, hash_password
 from sqlalchemy.exc import IntegrityError
@@ -33,20 +33,19 @@ async def create_user(
         email = user.email,
         hashed_password = hash_password(user.password),
         created_at = datetime.datetime.now(),
-        updated_at = datetime.datetime.now(),
     )
     return new_user
 
 @router.put("/update")
 async def update_user(
-    user:SUserUpdate,
+    user: SUserUpdate,
     user_id: int,
-    users: UserRepository = Depends(get_user_repository)):
-    #current_user: SUser = Depends(get_current_user)):
+    users: UserRepository = Depends(get_user_repository),
+    current_user: SUser = Depends(get_current_user)):
 
-#    old_user = await users.get_by_id(id=user_id)
-#    if old_user is None or old_user.email != current_user.email:
-#        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Not found user")
+    old_user = await users.get_by_id(id_=user_id)
+    if old_user is None or old_user.email != current_user.email:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Not found user")
     
     try:
         await users.update(
@@ -54,7 +53,6 @@ async def update_user(
             name = user.name,
             email = user.email,
             hashed_password = hash_password(user.password),
-            updated_at = datetime.datetime.now()
         )
     except IntegrityError:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT)    
@@ -64,14 +62,15 @@ async def update_user(
 @router.delete("/delete", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(  
     user_id: int,
-    users: UserRepository = Depends(get_user_repository)):
-    #current_user:SUser = Security(get_current_user)): 
+    users: UserRepository = Depends(get_user_repository),
+    current_user:SUser = Security(get_current_user)): 
 
-    #old_user = await users.get_by_id(id=user_id)
-    #if old_user is None and old_user.id != current_user.id:
-    #    raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Not found user")
+    old_user = await users.get_by_id(id_=user_id)
+    if old_user is None and old_user.id != current_user.id:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Not found user")
     
     await users.delete(
         id_=user_id
     )
+    
     
