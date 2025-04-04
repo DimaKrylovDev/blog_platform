@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship 
-from uuid import UUID
 import datetime
 from sqlalchemy import ForeignKey
 from db.base import Base
+from typing import List
 
 class User(Base):
     __tablename__ = "users"
@@ -13,7 +13,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(unique=True)
     hashed_password: Mapped[str]
     created_at: Mapped[datetime.datetime]
-    updated_at: Mapped[datetime.datetime] 
-    blogs: Mapped[list["Blog"]] = relationship(uselist=True)
-    role: Mapped["Role"] = relationship()
     
+    blogs: Mapped[List["Blog"]] = relationship(back_populates="user",uselist=True, foreign_keys="Blog.user_id")
+    comments: Mapped[List["Comments"]] = relationship(back_populates="user", uselist=True, foreign_keys="Comments.user_id")
+    likes: Mapped[List["Likes"]] = relationship(uselist=True, foreign_keys="Likes.user_id")
